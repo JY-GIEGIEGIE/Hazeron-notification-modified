@@ -10,7 +10,18 @@ pip install -r requirements.txt
 
 to install all the requirements.
 
-configurations are in the directory `config`
+configurations are in the directory `config`, and make a directory named `storage` to storage previous data.
+
+write `config/secret_config.json`
+
+```json
+{
+    "WEBHOOK": "",
+    "SECRET": "",
+    "WEBVPN_NAME": "",
+    "WEBVPN_SECRET":
+}
+```
 
 and run
 

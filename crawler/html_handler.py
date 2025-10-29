@@ -3,13 +3,12 @@ import re
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup, Tag
 from typing import Dict, Any, List
-
 from ZJUWebVPN import ZJUWebVPNSession
-
+from .config import load_secret
+from .config import SECRET_FILE
 # ====================================================================
 # 辅助函数: 提取数据子模块
 # ====================================================================
-ses = ZJUWebVPNSession("[REDACTED_USER_ID]", "[REDACTED_PASSWORD]")
 
 
 def _extract_title(li: Tag, title_selector: str) -> str:
@@ -134,6 +133,8 @@ def extract_data_from_li(li: Tag, html_config: Dict[str, Any]) -> Dict[str, str]
 
 def get_info_from_html(site: Dict[str, Any]) -> List[Dict[str, str]]:
     """根据配置获取并解析 HTML 页面，支持单/多 URL 爬取。"""
+    _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
+    ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
     html_config = site.get("html_config", {})
     max_count = site.get("max_count", 5)
 
