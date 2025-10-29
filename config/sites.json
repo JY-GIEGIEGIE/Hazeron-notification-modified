@@ -1,9 +1,9 @@
 [
   {
-    "name" : "学工部-最新通知",
-    "mode" : "html",
-    "max_count" : 14,
-    "html_config" : {
+    "name": "学工部-最新通知",
+    "mode": "html",
+    "max_count": 14,
+    "html_config": {
       "url": "http://www.xgb.zju.edu.cn/53018/list1.psp",
       "base_url": "http://www.xgb.zju.edu.cn/",
       "selectors": {
@@ -15,12 +15,12 @@
   },
   {
     "name": "云峰学园-最新通知",
-    "mode" : "html",
-    "max_count" : 14,
-    "html_config" : {
+    "mode": "html",
+    "max_count": 14,
+    "html_config": {
       "url": "https://yunfeng.zju.edu.cn/on/53544/list.htm",
       "base_url": "https://yunfeng.zju.edu.cn/",
-      "selectors" : {
+      "selectors": {
         "list_selector": "ul.news_list li",
         "title_selector": ".news_title a",
         "date_selector": ".news_meta"
@@ -28,46 +28,46 @@
     }
   },
   {
-    "name" : "信息与电子工程学院-通知公告",
-    "mode" :"html",
-    "max_count" : 20,
-    "html_config" : {
-      "url" : "http://www.isee.zju.edu.cn/51190/main.psp",
-      "base_url" : "http://www.isee.zju.edu.cn/",
-      "selectors" : {
-        "list_selector" : "ul.list_top li",
-        "title_selector" : "p.title",
-        "date_selector" : null,
-        "date_regex" : {
-          "pattern" : "<h3>\\s*(\\d{1,2})\\s*</h3>.*?<p>\\s*(\\d{4}-\\d{2})\\s*</p>",
-          "format" : "$2-$1"
+    "name": "信息与电子工程学院-通知公告",
+    "mode": "html",
+    "max_count": 20,
+    "html_config": {
+      "url": "http://www.isee.zju.edu.cn/51190/main.psp",
+      "base_url": "http://www.isee.zju.edu.cn/",
+      "selectors": {
+        "list_selector": "ul.list_top li",
+        "title_selector": "p.title",
+        "date_selector": null,
+        "date_regex": {
+          "pattern": "<h3>\\s*(\\d{1,2})\\s*</h3>.*?<p>\\s*(\\d{4}-\\d{2})\\s*</p>",
+          "format": "$2-$1"
         }
       }
     }
   },
   {
-    "name" : "控制科学与工程学院-重点提示",
-    "mode" : "html",
-    "max_count" : 10,
-    "html_config" : {
-      "url" : "http://www.cse.zju.edu.cn/39284/list.psp",
-      "base_url" : "http://www.cse.zju.edu.cn/",
-      "selectors" : {
-        "list_selector" : "#wp_news_w34 ul li",
-        "title_selector" : "div.con1rm2r a span.con-title",
-        "date_selector" : "div.con1rm2l.xi20"
+    "name": "控制科学与工程学院-重点提示",
+    "mode": "html",
+    "max_count": 10,
+    "html_config": {
+      "url": "http://www.cse.zju.edu.cn/39284/list.psp",
+      "base_url": "http://www.cse.zju.edu.cn/",
+      "selectors": {
+        "list_selector": "#wp_news_w34 ul li",
+        "title_selector": "div.con1rm2r a span.con-title",
+        "date_selector": "div.con1rm2l.xi20"
       }
     }
   },
   {
     "name": "综合服务网-最新通知",
-    "mode" : "html",
-    "max_count" : 24,
-    "html_config" :{
+    "mode": "html",
+    "max_count": 24,
+    "html_config": {
       "url": "https://zhfw.zju.edu.cn/zhfw_jsgx/list.htm",
       "base_url": "https://zhfw.zju.edu.cn/",
-      "selectors" : {
-        "list_selector": "ul.cg-news-list li", 
+      "selectors": {
+        "list_selector": "ul.cg-news-list li",
         "title_selector": "a",
         "date_selector": null,
         "date_regex": {
@@ -78,56 +78,56 @@
     }
   },
   {
-    "name" : "本科生院-全部通知",
-    "mode" : "html",
-    "max_count" : 14,
-    "html_config" : {
-      "url" : ["https://bksy.zju.edu.cn/28418/list.htm"],
-      "base_url" : "https://bksy.zju.edu.cn/",
-      "selectors" : {
-        "list_selector" : "ul.right-list li",
-        "title_selector" : "a>p",
+    "name": "本科生院-全部通知",
+    "mode": "html",
+    "max_count": 14,
+    "html_config": {
+      "url": ["https://bksy.zju.edu.cn/28418/list.htm"],
+      "base_url": "https://bksy.zju.edu.cn/",
+      "selectors": {
+        "list_selector": "ul.right-list li",
+        "title_selector": "a>p",
         "date_selector": "span.y"
       }
     }
   },
   {
-    "name" : "竞赛管理系统-通知公告",
-    "mode" : "api",
-    "max_count" : 20,
-    "api_config" : {
-      "url" : "http://kyjs.zju.edu.cn/prod-api/home/news/page?pageNum=1&pageSize=30&topicId=10000",
-      "base_link_url" : "http://kyjs.zju.edu.cn/home/notice/detail?newsId=",
+    "name": "竞赛管理系统-通知公告",
+    "mode": "api",
+    "max_count": 20,
+    "api_config": {
+      "url": "http://kyjs.zju.edu.cn/prod-api/home/news/page?pageNum=1&pageSize=30&topicId=10000",
+      "base_link_url": "http://kyjs.zju.edu.cn/home/notice/detail?newsId=",
       "data_path": ["data", "records"],
       "fields_map": {
         "title": "title",
         "date": "publishTime",
-        "link_key": "newsId" 
+        "link_key": "newsId"
       }
     }
   },
   {
-    "name" : "科研训练系统-通知公告",
-    "mode" : "api",
-    "max_count" : 10,
-    "api_config" : {
-      "url" : "http://kyjs.zju.edu.cn/srts/prod-api/cc/home/news/page?pageNum=1&pageSize=10&topicId=10000",
-      "base_link_url" : "http://kyjs.zju.edu.cn/srts/#/home/news/",
+    "name": "科研训练系统-通知公告",
+    "mode": "api",
+    "max_count": 10,
+    "api_config": {
+      "url": "http://kyjs.zju.edu.cn/srts/prod-api/cc/home/news/page?pageNum=1&pageSize=10&topicId=10000",
+      "base_link_url": "http://kyjs.zju.edu.cn/srts/#/home/news/",
       "data_path": ["data", "records"],
       "fields_map": {
         "title": "title",
         "date": "publishTime",
-        "link_key": "newsId" 
+        "link_key": "newsId"
       }
     }
   },
   {
-    "name" : "素拓平台-重要通知",
-    "mode" : "api",
-    "max_count" : 20,
-    "api_config" : {
-      "url" : "https://sztz.zju.edu.cn/dekt/student/home/getTzggList?page=1&limit=3",
-      "base_link_url" : "https://sztz.zju.edu.cn/dekt/#/index/tzgg",
+    "name": "素拓平台-重要通知",
+    "mode": "api",
+    "max_count": 20,
+    "api_config": {
+      "url": "https://sztz.zju.edu.cn/dekt/student/home/getTzggList?page=1&limit=3",
+      "base_link_url": "https://sztz.zju.edu.cn/dekt/#/index/tzgg",
       "data_path": ["data"],
       "fields_map": {
         "title": "mc",
@@ -137,17 +137,31 @@
     }
   },
   {
-    "name" : "教室资源管理系统-通知公告",
-    "mode" :"api",
-    "max_count" : 10,
-    "api_config" : {
-      "url" : "https://jxzygl.zju.edu.cn/service-zypt/api/mhgl/tzgl/pagingQxTzgl?xwbt=&page_size=10&page_num=1",
-      "base_link_url" : "https://jxzygl.zju.edu.cn/zypt/teacher/notification",
-      "data_path" : ["data", "list"],
-      "fields_map" : {
-        "title" : "xwbt",
-        "date" : "fbsj",
-        "link_key" : null
+    "name": "教室资源管理系统-通知公告",
+    "mode": "api",
+    "max_count": 10,
+    "api_config": {
+      "url": "https://jxzygl.zju.edu.cn/service-zypt/api/mhgl/tzgl/pagingQxTzgl?xwbt=&page_size=10&page_num=1",
+      "base_link_url": "https://jxzygl.zju.edu.cn/zypt/teacher/notification",
+      "data_path": ["data", "list"],
+      "fields_map": {
+        "title": "xwbt",
+        "date": "fbsj",
+        "link_key": null
+      }
+    }
+  },
+  {
+    "name": "蓝田学园",
+    "mode": "html",
+    "max_count": 20,
+    "html_config": {
+      "url": ["http://lantian.zju.edu.cn/ltoffice/14461/list.htm"],
+      "base_url": "https://lantian.zju.edu.cn/",
+      "selectors": {
+        "list_selector": "ul.news_list li",
+        "title_selector": "span.news_title a",
+        "date_selector": "span.news_meta"
       }
     }
   }
