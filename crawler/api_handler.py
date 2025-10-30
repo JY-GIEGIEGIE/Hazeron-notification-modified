@@ -44,6 +44,7 @@ def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
 
     # 3. 循环处理每一个 API URL (支持多 URL 爬取)
     for api_url in url_list:
+        current_item_count = 0
         if not api_url: continue
         
         print(f"  -> 正在处理 API 接口: {api_url}")
@@ -128,8 +129,9 @@ def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
                     continue
 
             items.append({"title": title, "link": link, "date": date})
+            current_item_count += 1
 
-            if len(items) >= max_count:
-                return items # 达到 max_count，停止当前 URL 的处理，并退出外层循环
+            if current_item_count >= max_count:
+                return items
     
     return items
