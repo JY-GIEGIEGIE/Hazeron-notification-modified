@@ -5,7 +5,7 @@
     "max_count" : 14,
     "html_config" : {
       "url": "http://www.xgb.zju.edu.cn/53018/list1.psp",
-      "base_url": "http://www.xgb.zju.edu.cn/",
+      "base_link_url": "http://www.xgb.zju.edu.cn/",
       "selectors": {
         "list_selector": "ul.news_list li",
         "title_selector": ".news_title a",
@@ -19,7 +19,7 @@
     "max_count" : 14,
     "html_config" : {
       "url": "https://yunfeng.zju.edu.cn/on/53544/list.htm",
-      "base_url": "https://yunfeng.zju.edu.cn/",
+      "base_link_url": "https://yunfeng.zju.edu.cn/",
       "selectors" : {
         "list_selector": "ul.news_list li",
         "title_selector": ".news_title a",
@@ -33,7 +33,7 @@
     "max_count" : 20,
     "html_config" : {
       "url" : "http://www.isee.zju.edu.cn/51190/main.psp",
-      "base_url" : "http://www.isee.zju.edu.cn/",
+      "base_link_url" : "http://www.isee.zju.edu.cn/",
       "selectors" : {
         "list_selector" : "ul.list_top li",
         "title_selector" : "p.title",
@@ -51,7 +51,7 @@
     "max_count" : 10,
     "html_config" : {
       "url" : "http://www.cse.zju.edu.cn/39284/list.psp",
-      "base_url" : "http://www.cse.zju.edu.cn/",
+      "base_link_url" : "http://www.cse.zju.edu.cn/",
       "selectors" : {
         "list_selector" : "#wp_news_w34 ul li",
         "title_selector" : "div.con1rm2r a span.con-title",
@@ -65,7 +65,7 @@
     "max_count" : 24,
     "html_config" :{
       "url": "https://zhfw.zju.edu.cn/zhfw_jsgx/list.htm",
-      "base_url": "https://zhfw.zju.edu.cn/",
+      "base_link_url": "https://zhfw.zju.edu.cn/",
       "selectors" : {
         "list_selector": "ul.cg-news-list li", 
         "title_selector": "a",
@@ -83,7 +83,7 @@
     "max_count" : 14,
     "html_config" : {
       "url" : ["https://bksy.zju.edu.cn/28418/list.htm"],
-      "base_url" : "https://bksy.zju.edu.cn/",
+      "base_link_url" : "https://bksy.zju.edu.cn/",
       "selectors" : {
         "list_selector" : "ul.right-list li",
         "title_selector" : "a>p",
