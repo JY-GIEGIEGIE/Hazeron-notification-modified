@@ -2,6 +2,9 @@ import requests
 import re
 import json
 from typing import Dict, Any, List
+from ZJUWebVPN import ZJUWebVPNSession
+from .config import load_secret
+from .config import SECRET_FILE
 
 
 def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
@@ -11,19 +14,15 @@ def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
     :param channel_task: 包含完整配置的单个栏目任务字典（来自数据库）。
     :return: 包含字典（title, link, date）的列表。
     """
-    
-    # 1. 从扁平化任务字典中获取所需配置
-    api_config = channel_task.get("api_config", {})
-    
-    # max_count 和 base_link_url 是扁平化字段，直接在顶层
+    _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
+    ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
+    api_config = site.get("api_config", {})
     max_count = channel_task.get("max_count", 5) 
     base_link_url = channel_task.get("base_link_url", "") # 【修正】从顶层获取
     url_list = channel_task.get("url_list", []) # 【修正】使用 url_list
 
     site_name = channel_task.get("site_name", "Unknown")
     channel_name = channel_task.get("channel_name", "Unknown")
-    
-    # API URL 不再从 api_config.get("url") 获取，而是从 url_list 遍历
     fields_map = api_config.get("fields_map", {})
     data_path = api_config.get("data_path", []) 
     
@@ -37,8 +36,8 @@ def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
         return []
 
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
     }
 
     items: List[Dict[str, str]] = []
@@ -51,7 +50,7 @@ def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
         
         # 请求 API
         try:
-            r = requests.get(api_url, headers=headers, timeout=10)
+            r = ses.get(api_url, headers=headers, timeout=10)
             r.raise_for_status() 
             api_data = r.json()
         except requests.exceptions.RequestException as e:

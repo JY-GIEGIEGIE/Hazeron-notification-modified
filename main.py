@@ -1,45 +1,15 @@
 import json
-import os # 需要导入os来构建安全的路径
+import os
 from crawler.fetcher import get_latest_info
 from utils.formatter import format_message
 from notifier.dingtalk import send_dingtalk_msg
-# --- 导入新的数据库模块 ---
 from repo.database import initialize_db, get_all_channels, add_new_notification, generate_fingerprint, is_notification_new
-
-# --- 文件路径常量更新 ---
-SECRET_FILE = 'config/secret_config.json'
-SITES_FILE = "config/test.json"
-# 移除 DATA_FILE，因为它被数据库取代了
-
-def load_secret(path):
-    # ... (保持不变，用于加载 SECRET 和 WEBHOOK) ...
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            secrets = json.load(f)
-            webhook = secrets["WEBHOOK"] 
-            secret = secrets["SECRET"]
-        return webhook, secret
-    except Exception as e:
-        print(f"致命错误：加载关键配置 '{SECRET_FILE}' 时发生错误。")
-        print(f"详细信息: {e}")
-        exit(1)
-
-
-def load_json(path, default):
-    """加载配置JSON文件"""
-    try:
-        # 确保使用 os.path.join 来构建路径，提高可移植性
-        return json.load(open(os.path.join(os.path.dirname(__file__), path), "r", encoding="utf-8"))
-    except FileNotFoundError:
-        print(f"警告：配置文件 '{path}' 未找到，使用默认值。")
-        return default
-    except Exception as e:
-        print(f"加载配置文件 '{path}' 错误: {e}")
-        return default
+from crawler.config import load_json, load_secret, save_json
+from crawler.config import SECRET_FILE, DATA_FILE, SITES_FILE
 
 
 def main():
-    webhook, secret = load_secret(SECRET_FILE)
+    webhook, secret, _, _ = load_secret(SECRET_FILE)
     
     # 1. 加载新的结构化配置
     sites_config = load_json(SITES_FILE, [])
