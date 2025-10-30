@@ -4,7 +4,7 @@ import json
 from typing import Dict, Any, List
 from ZJUWebVPN import ZJUWebVPNSession
 from .config import load_secret
-from .config import SECRET_FILE
+from .config import SECRET_FILE, ENABLE_WEBVPN
 
 
 def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
@@ -14,9 +14,14 @@ def get_info_from_api(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
     :param channel_task: 包含完整配置的单个栏目任务字典（来自数据库）。
     :return: 包含字典（title, link, date）的列表。
     """
-    _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
-    ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
-    api_config = site.get("api_config", {})
+    # 根据全局配置和每个 channel 的可选覆盖决定使用哪种会话
+    use_webvpn = channel_task.get("use_webvpn", ENABLE_WEBVPN)
+    if use_webvpn:
+        _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
+        ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
+    else:
+        ses = requests.Session()
+    api_config = channel_task.get("api_config", {})
     max_count = channel_task.get("max_count", 5) 
     base_link_url = channel_task.get("base_link_url", "") # 【修正】从顶层获取
     url_list = channel_task.get("url_list", []) # 【修正】使用 url_list

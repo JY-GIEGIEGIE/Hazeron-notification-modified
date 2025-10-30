@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup, Tag
 from typing import Dict, Any, List
 from ZJUWebVPN import ZJUWebVPNSession
 from .config import load_secret
-from .config import SECRET_FILE
+from .config import SECRET_FILE, ENABLE_WEBVPN
 # ====================================================================
 # 辅助函数: 提取数据子模块 (保持不变)
 # ====================================================================
@@ -131,8 +131,13 @@ def extract_data_from_li(li: Tag, html_config: Dict[str, Any], base_link_url: st
 def get_info_from_html(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
     """根据配置获取并解析 HTML 页面，支持多 URL 爬取。"""
     
-    _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
-    ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
+    # 根据全局配置和每个 channel 的可选覆盖决定使用哪种会话
+    use_webvpn = channel_task.get("use_webvpn", ENABLE_WEBVPN)
+    if use_webvpn:
+        _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
+        ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
+    else:
+        ses = requests.Session()
     # 1. 从扁平化任务字典中获取所需配置
     html_config = channel_task.get("html_config", {})
     

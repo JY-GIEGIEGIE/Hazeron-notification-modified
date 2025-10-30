@@ -4,8 +4,8 @@ from crawler.fetcher import get_latest_info
 from utils.formatter import format_message
 from notifier.dingtalk import send_dingtalk_msg
 from repo.database import initialize_db, get_all_channels, add_new_notification, generate_fingerprint, is_notification_new
-from crawler.config import load_json, load_secret, save_json
-from crawler.config import SECRET_FILE, DATA_FILE, SITES_FILE
+from crawler.config import load_json, load_secret
+from crawler.config import SECRET_FILE, SITES_FILE
 
 
 def main():
@@ -56,7 +56,6 @@ def main():
             print(f"    无更新。")
     
     print(f"--- 任务完成。共发现和推送 {total_new_items} 条新通知 ---")
-    # 移除 save_json(DATA_FILE, last_state)，因为数据库已自动保存
     
 if __name__ == "__main__":
     main()

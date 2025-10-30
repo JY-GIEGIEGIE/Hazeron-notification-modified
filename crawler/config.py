@@ -1,8 +1,8 @@
 import json
 
+ENABLE_WEBVPN = False
 SECRET_FILE = "config/secret_config.json"
-DATA_FILE = "storage/last_state.json"
-SITES_FILE = "config/sites.json"
+SITES_FILE = "config/test.json"
 
 
 def load_secret(path):
@@ -25,7 +25,3 @@ def load_json(path, default):
         return json.load(open(path, "r", encoding="utf-8"))
     except:
         return default
-
-
-def save_json(path, data):
-    json.dump(data, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
