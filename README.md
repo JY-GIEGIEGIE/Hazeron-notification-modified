@@ -19,7 +19,9 @@ write `config/secret_config.json`
     "WEBHOOK": "",
     "SECRET": "",
     "WEBVPN_NAME": "",
-    "WEBVPN_SECRET":
+    "WEBVPN_SECRET": "",
+    "CLIENT_ID" : "",
+    "CLIENT_SECRET" : ""
 }
 ```
 

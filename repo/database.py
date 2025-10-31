@@ -290,3 +290,50 @@ def get_all_channels() -> List[Dict[str, Any]]:
         
     conn.close()
     return channels
+
+
+# ==========================================================
+# 4. 搜索查询函数 (供 search_service.py 调用)
+# ==========================================================
+
+def get_notifications_by_keyword_sync(keyword: str, limit: int = 10) -> List[Dict[str, Any]]:
+    """
+    同步函数：根据关键词搜索 Notification 表的 title 字段。
+    
+    :param keyword: 搜索关键词。
+    :param limit: 返回结果限制。
+    :return: 结果字典列表。
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 核心 SQL 查询
+    sql = """
+        SELECT 
+            title, 
+            link, 
+            published_date AS date, 
+            site_name,
+            channel_name
+        FROM 
+            Notification n
+        JOIN 
+            Channel c ON n.channel_id = c.id
+        WHERE 
+            n.title LIKE ?
+        ORDER BY 
+            n.push_time DESC 
+        LIMIT 
+            ?
+    """
+    
+    # 使用 % 符号进行模糊匹配，防止 SQL 注入
+    params = (f'%{keyword}%', limit)
+    
+    cursor.execute(sql, params)
+    
+    # 将 sqlite3.Row 对象转换为标准的 dict
+    results = [dict(row) for row in cursor.fetchall()]
+    
+    conn.close()
+    return results
