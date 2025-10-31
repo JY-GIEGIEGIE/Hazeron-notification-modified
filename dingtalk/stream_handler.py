@@ -43,8 +43,9 @@ class CustomChatbotHandler(dingtalk_stream.ChatbotHandler):
             # 3. **调用外部业务逻辑**：等待异步业务函数返回回复文本
             response_text = await self.business_handler(message_dict)
 
-            # 4. 回复：使用 SDK 提供的 reply_text 方法发送回复
-            self.reply_text(response_text, incoming_message)
+            # 4. 更新：使用markdown回复
+            markdown_title = "Hazeron"
+            self.reply_markdown(markdown_title, response_text, incoming_message) 
 
             # 5. 返回确认状态：表示消息处理成功
             return dingtalk_stream.AckMessage.STATUS_OK, 'OK'
