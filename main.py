@@ -3,7 +3,7 @@ import os
 from crawler.fetcher import get_latest_info
 from utils.formatter import format_message
 from notifier.dingtalk import send_dingtalk_msg
-from repo.database import initialize_db, get_all_channels, add_new_notification, generate_fingerprint, is_notification_new
+from database.database import initialize_db, get_all_channels, add_new_notification, generate_fingerprint, is_notification_new
 from crawler.config import load_json, load_secret
 from crawler.config import SECRET_FILE, SITES_FILE
 

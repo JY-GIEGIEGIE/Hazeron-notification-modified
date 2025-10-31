@@ -3,3 +3,4 @@ beautifulsoup4==4.14.2
 lxml==6.0.2
 schedule==1.2.2
 zjuwebvpn==0.2.1
+jieba==0.42.1

@@ -5,37 +5,21 @@ import hashlib
 import copy
 from typing import List, Dict, Any, Tuple
 from datetime import datetime
-
-# ==========================================================
-# 路径定义
-# ==========================================================
-DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'storage')
-DB_FILE = os.path.join(DB_DIR, 'notifier.db')
-
-# 确保 storage 目录存在
-os.makedirs(DB_DIR, exist_ok=True) 
-
-def get_db_connection():
-    """获取数据库连接，启用字典访问和外键约束"""
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    # 启用外键约束
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+from database import search_db
+from database.utils_db import get_db_connection
 
 # ==========================================================
 # 1. 数据库初始化 (包含非破坏性配置更新)
 # ==========================================================
 
 # ==========================================================
-# 辅助函数 1: 配置继承与任务生成
+# 辅助函数 1: 配置继承与任务生成 (保持不变)
 # ==========================================================
 
 def _generate_task_list(sites_config: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     根据 sites_config 生成扁平化的任务列表。
-    处理 Site 级配置的继承和 Channel 级配置的覆盖。
-    修复了浅层复制导致的数据污染问题。
+    处理 Site 级配置的继承与 Channel 级配置的覆盖。
     """
     all_tasks = []
     
@@ -93,13 +77,12 @@ def _generate_task_list(sites_config: List[Dict[str, Any]]) -> List[Dict[str, An
     return all_tasks
 
 # ==========================================================
-# 辅助函数 2: 数据清洗与扁平化
+# 辅助函数 2: 数据清洗与扁平化 (保持不变)
 # ==========================================================
 
 def _prepare_channel_data(task: Dict[str, Any]) -> Tuple[str, str, str, str, str, str]:
     """
     将合并后的任务配置清洗、扁平化，并准备好 SQL 语句所需的参数。
-    修复了 base_link_url 丢失问题：不再 pop 关键配置。
     """
     # 提取任务元数据
     site_name = task['site_name']
@@ -114,7 +97,7 @@ def _prepare_channel_data(task: Dict[str, Any]) -> Tuple[str, str, str, str, str
     url_list = [url_config_raw] if isinstance(url_config_raw, str) else (url_config_raw if isinstance(url_config_raw, list) else [])
     main_url = url_list[0] if url_list else "N/A"
     
-    # 提取 base_link_url 到独立列变量 (L)
+    # 提取 base_link_url 到独立列变量
     base_link_url = ''
     config_key = f'{final_mode}_config'
     
@@ -122,10 +105,6 @@ def _prepare_channel_data(task: Dict[str, Any]) -> Tuple[str, str, str, str, str
         # 从嵌套配置中提取 base_link_url
         base_link_url = final_config[config_key].get('base_link_url', '')
         
-        # ⚠️ 【修复链接丢失问题】: 停止 pop 操作！
-        # final_config[config_key].pop('url', None) 
-        # final_config[config_key].pop('base_link_url', None) # 移除此行
-
     # 最终配置定型和序列化
     final_config['url_list'] = url_list # 添加规范化的 url 列表
     
@@ -146,12 +125,13 @@ def _prepare_channel_data(task: Dict[str, Any]) -> Tuple[str, str, str, str, str
 def initialize_db(sites_config: List[Dict[str, Any]]):
     """
     主配置函数：初始化数据库结构，并执行非破坏性配置更新。
+    🚨 新增 FTS5 虚拟表的创建。
     """
     conn = get_db_connection()
     cursor = conn.cursor()
     
     # --- A. 创建表结构 ---
-    # Channel 表
+    # Channel 表 (保持不变)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Channel (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -163,7 +143,7 @@ def initialize_db(sites_config: List[Dict[str, Any]]):
             config_json TEXT NOT NULL
         )
     """)
-    # Notification 表
+    # Notification 表 (保持不变)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Notification (
             fingerprint TEXT PRIMARY KEY,
@@ -177,6 +157,17 @@ def initialize_db(sites_config: List[Dict[str, Any]]):
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_notification_channel ON Notification (channel_id)")
 
+    # 🚨 FTS5 虚拟表创建：用于全文搜索
+    # 我们使用 rowid=fingerprint 作为主键，并指定 prefix='2' 优化前缀搜索
+    cursor.execute("""
+    CREATE VIRTUAL TABLE IF NOT EXISTS Notification_fts USING fts5(
+        title, 
+        fingerprint UNINDEXED,
+        prefix='2'             
+    );
+    """)
+    # 🚨 注意：不再创建 FTS5 触发器，因为索引同步现在由 Python (search_db) 处理。
+    
     # --- B. 生成任务列表 ---
     tasks_to_process = _generate_task_list(sites_config)
     
@@ -233,37 +224,60 @@ def is_notification_new(fingerprint: str) -> bool:
     conn.close()
     return is_new
 
-def add_new_notification(channel_id: int, notification_data: Dict[str, str]) -> None:
-    """将新的通知记录添加到 Notification 表中。"""
+def add_new_notification(channel_id: int, notification_data: Dict[str, str]) -> bool:
+    """
+    实现事务原子性的存储函数。
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    fingerprint = generate_fingerprint(
-        notification_data['title'], 
-        notification_data['link']
-    )
+    title = notification_data['title']
+    link = notification_data['link']
     
+    fingerprint = generate_fingerprint(title, link)
     push_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    # 使用 OR IGNORE 确保即使并发写入也不会崩溃
-    cursor.execute("""
-        INSERT OR IGNORE INTO Notification 
-        (fingerprint, channel_id, title, link, published_date, push_time)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (
-        fingerprint,
-        channel_id,
-        notification_data['title'],
-        notification_data['link'],
-        notification_data.get('date', 'N/A'),
-        push_time
-    ))
-    
-    conn.commit()
-    conn.close()
+    inserted = False 
+
+    try:
+        # 1. 尝试插入 Notification 主表
+        cursor.execute("""
+            INSERT OR IGNORE INTO Notification 
+            (fingerprint, channel_id, title, link, published_date, push_time)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            fingerprint,
+            channel_id,
+            title,
+            link,
+            notification_data.get('date', 'N/A'),
+            push_time
+        ))
+        
+        inserted = cursor.rowcount > 0
+        
+        # 2. 如果主表插入成功，则更新 FTS5 索引
+        if inserted:
+            # 只传递 cursor 对象
+            search_db.update_fts5_index_sync(cursor, fingerprint, title)
+            
+        # 3. 提交事务
+        conn.commit()
+        
+        return inserted
+        
+    except Exception as e:
+        # 4. 出现任何错误时回滚
+        conn.rollback()
+        print(f"[ERROR] Transaction failed for notification {fingerprint}. Rolling back. Error: {e}")
+        return False
+        
+    finally:
+        # 5. 关闭连接
+        conn.close()
+
 
 # ==========================================================
-# 3. 核心配置获取函数 (任务调度接口)
+# 3. 核心配置获取函数 (任务调度接口) (保持不变)
 # ==========================================================
 
 def get_all_channels() -> List[Dict[str, Any]]:
@@ -290,50 +304,3 @@ def get_all_channels() -> List[Dict[str, Any]]:
         
     conn.close()
     return channels
-
-
-# ==========================================================
-# 4. 搜索查询函数 (供 search_service.py 调用)
-# ==========================================================
-
-def get_notifications_by_keyword_sync(keyword: str, limit: int = 10) -> List[Dict[str, Any]]:
-    """
-    同步函数：根据关键词搜索 Notification 表的 title 字段。
-    
-    :param keyword: 搜索关键词。
-    :param limit: 返回结果限制。
-    :return: 结果字典列表。
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # 核心 SQL 查询
-    sql = """
-        SELECT 
-            title, 
-            link, 
-            published_date AS date, 
-            site_name,
-            channel_name
-        FROM 
-            Notification n
-        JOIN 
-            Channel c ON n.channel_id = c.id
-        WHERE 
-            n.title LIKE ?
-        ORDER BY 
-            n.push_time DESC 
-        LIMIT 
-            ?
-    """
-    
-    # 使用 % 符号进行模糊匹配，防止 SQL 注入
-    params = (f'%{keyword}%', limit)
-    
-    cursor.execute(sql, params)
-    
-    # 将 sqlite3.Row 对象转换为标准的 dict
-    results = [dict(row) for row in cursor.fetchall()]
-    
-    conn.close()
-    return results

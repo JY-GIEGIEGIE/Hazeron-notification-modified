@@ -1,10 +1,8 @@
-# services/search_service.py
-
 import asyncio
 from typing import Dict, Any, List
 
 # 导入 database.py 中的搜索函数
-from repo import database
+from database import search_db
 
 async def execute_query(keyword: str, limit: int = 10) -> List[Dict[str, Any]]:
     """
@@ -26,11 +24,10 @@ async def execute_query(keyword: str, limit: int = 10) -> List[Dict[str, Any]]:
     # 这样，当线程在等待 I/O 时，主线程可以继续处理其他事件。
     try:
         results = await loop.run_in_executor(
-            None, # 使用默认的 ThreadPoolExecutor
-            database.get_notifications_by_keyword_sync, # 要执行的同步函数
-            keyword.strip(), # 传递给函数的第一个参数
-            limit            # 传递给函数的第二个参数
-        )
+            None, 
+            search_db.search_notifications_sync, 
+            keyword
+    )
         
         # 结果结构示例：
         # [{'title': '...', 'link': '...', 'date': '...', 'site_name': '...', 'channel_name': '...'}, ...]
