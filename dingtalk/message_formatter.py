@@ -1,6 +1,61 @@
-# services/message_formatter.py
-
 from typing import List, Dict, Any
+
+def format_notification_details(notification: Dict[str, Any], index: int) -> str:
+    """
+    格式化单条通知，优化美观度：
+    - 支持点击标题跳转（保留 Markdown 链接）。
+    - 仅显示标题和日期，去除原始链接文本。
+    """
+    title = notification.get('title', '无标题')
+    link = notification.get('link', '#')
+    # 使用 'published_date'，确保与数据源一致
+    date = notification.get('date', 'N/A') 
+    
+    # 标题行：加粗标题，日期放在前面，并包含可点击的 Markdown 链接。
+    # 格式：1. 【日期】 **[通知标题](链接)**
+    title_line = f"{index}. 【{date}】 **[{title}]({link})**"
+    
+    # 🚨 移除 link_line，不再显式显示原始链接
+    
+    return title_line
+
+def format_channel_update_markdown(
+    channel_name: str, 
+    site_name: str, 
+    new_notifications: List[Dict[str, Any]]
+) -> str:
+    """
+    格式化一个 Channel 的所有新通知为Markdown推送消息。
+    - 突出网站名和栏目名。
+    - 每两条通知之间使用分割线隔开。
+    """
+    if not new_notifications:
+        return "" 
+    
+    count = len(new_notifications)
+    
+    # 消息头：突出网站名和栏目名
+    markdown_message = (
+        f"### 🎉 **【{site_name}】** 新增通知\n\n"
+        f"**🏛️ 栏目：** **`{channel_name}`**\n\n"
+        f"**📢 数量：** 本次发现 **{count}** 条新通知！\n\n"
+        f"***\n\n" # 使用分隔符将头部分隔
+        f"**新通知列表：**\n"
+    )
+    
+    # 列表部分：包含标题、日期和可点击链接
+    for i, notification in enumerate(new_notifications, 1):
+        # 插入每个通知的详情
+        markdown_message += format_notification_details(notification, i)
+        
+        # 在每两条通知之间添加 Markdown 分割线，但不在最后一条之后添加
+        if i < count:
+            markdown_message += "\n\n---\n" 
+        
+        markdown_message += "\n" # 确保最后一条通知后有一个换行
+        
+    return markdown_message.strip()
+
 
 def format_search_results(results: List[Dict[str, Any]], keyword: str) -> str:
     """

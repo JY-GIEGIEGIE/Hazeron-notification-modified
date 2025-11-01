@@ -50,6 +50,7 @@ build/
 # 请确保您的敏感 JSON 或其他配置文件被排除！
 # 示例：如果您将 API 密钥放在 secret_config.json
 secret_config.json
+secret_config.py
 .env
 
 # 临时下载和处理的文件
