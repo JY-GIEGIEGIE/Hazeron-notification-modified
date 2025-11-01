@@ -56,6 +56,22 @@ def format_channel_update_markdown(
         
     return markdown_message.strip()
 
+def format_no_update_markdown() -> str:
+    """
+    构造 Markdown 格式的“本次运行无新通知”的心跳消息。
+    """
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    markdown_text = (
+        f"**📢 无新通知**\n\n"
+        f"> 🕒 **任务完成时间:** {timestamp}\n\n"
+        f"本次定时任务已成功完成所有配置站点的检查。\n"
+        f"在所有已监控的栏目中，**未发现任何新的通知或更新**。\n\n"
+        f"--- \n"
+        f" *系统运行正常，请稍后再次查看。*"
+    )
+    return markdown_text
 
 def format_search_results(results: List[Dict[str, Any]], keyword: str) -> str:
     """

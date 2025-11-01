@@ -7,7 +7,7 @@ from config.secret_config import (
     CLIENT_ID, CLIENT_SECRET, 
     DINGTALK_ROBOT_CODE, DINGTALK_CONVERSATION_ID
 )
-from dingtalk.message_formatter import format_channel_update_markdown
+from dingtalk.message_formatter import format_channel_update_markdown, format_no_update_markdown
 
 # 钉钉 SDK 导入
 from alibabacloud_dingtalk.robot_1_0.client import Client as DingTalkRobotClient
@@ -93,8 +93,26 @@ def send_channel_notifications(
         site_name: 网站名称 (如：云峰学园)
         new_notifications: 属于该 Channel 的新通知字典列表。
     """
-    if not new_notifications:
-        return
+    
+    is_heartbeat = not new_notifications
+    if is_heartbeat:
+        # **调用新的格式化函数**
+        message_markdown_text = format_no_update_markdown()
+        title = "【任务状态】本次运行无新通知"
+        print("[DingTalk] 准备推送无通知心跳消息...")
+    
+    else:
+        count = len(new_notifications)
+        print(f"[DingTalk] 准备推送 Channel: {channel_name} ({count} 条新通知)...")
+        
+        # 构造单条汇总 Markdown 消息
+        message_markdown_text = format_channel_update_markdown(
+            channel_name, 
+            site_name, 
+            new_notifications
+        )
+        # 消息卡片标题
+        title = f"【{site_name}】{channel_name} 发现 {count} 条新通知"
 
     try:
         access_token = get_access_token()
@@ -102,20 +120,9 @@ def send_channel_notifications(
         print(f"[DingTalk] 推送中止，无法获取 Access Token。")
         return
 
-    count = len(new_notifications)
-    print(f"[DingTalk] 准备推送 Channel: {channel_name} ({count} 条新通知)...")
-
-    # 🚨 构造单条汇总 Markdown 消息
-    message_markdown_text = format_channel_update_markdown(
-        channel_name, 
-        site_name, 
-        new_notifications
-    )
-    
     # 构造 msgParam (Markdown 模板结构)
     msg_param_data = {
-        # 消息卡片标题应简洁地概括更新内容
-        "title": f"【{site_name}】{channel_name} 发现 {count} 条新通知",
+        "title": title,
         "text": message_markdown_text
     }
     msg_param_json = json.dumps(msg_param_data)
@@ -138,10 +145,17 @@ def send_channel_notifications(
             org_group_send_headers, 
             util_models.RuntimeOptions(read_timeout=3000, connect_timeout=3000)
         )
-        print(f"[DingTalk] 成功推送 Channel: {channel_name} ({count} 条新通知)")
+        
+        # ------------------------------------------------------------------
+        # 🚨 修正点 2: 打印成功消息时区分是通知还是心跳
+        # ------------------------------------------------------------------
+        if is_heartbeat:
+             print(f"[DingTalk] 成功推送无通知心跳消息。")
+        else:
+             print(f"[DingTalk] 成功推送 Channel: {channel_name} ({count} 条新通知)")
         
     except Exception as err:
-        print(f"[DingTalk ERROR] 推送失败: Channel {channel_name}")
+        print(f"[DingTalk ERROR] 推送失败: {'心跳消息' if is_heartbeat else channel_name}")
         if hasattr(err, 'code') and hasattr(err, 'message'):
             print(f"Error Type: SDK Error, Code: {err.code}, Message: {err.message}")
         else:
