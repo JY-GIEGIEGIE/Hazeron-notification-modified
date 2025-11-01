@@ -1,7 +1,8 @@
 #测试文件
 test.json
 tests/
-
+#私有文件
+start_notifier.bat
 
 # ====================================
 # 通用 Python 文件
