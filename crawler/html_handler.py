@@ -4,8 +4,8 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup, Tag
 from typing import Dict, Any, List
 from ZJUWebVPN import ZJUWebVPNSession
-from .config import load_secret
-from .config import SECRET_FILE, ENABLE_WEBVPN
+from crawler.config import ENABLE_WEBVPN
+from config.secret_config import WEBVPN_NAME, WEBVPN_SECRET
 # ====================================================================
 # 辅助函数: 提取数据子模块 (保持不变)
 # ====================================================================
@@ -134,8 +134,7 @@ def get_info_from_html(channel_task: Dict[str, Any]) -> List[Dict[str, str]]:
     # 根据全局配置和每个 channel 的可选覆盖决定使用哪种会话
     use_webvpn = channel_task.get("use_webvpn", ENABLE_WEBVPN)
     if use_webvpn:
-        _, _, webvpn_name, webvpn_secret = load_secret(SECRET_FILE)
-        ses = ZJUWebVPNSession(webvpn_name, webvpn_secret)
+        ses = ZJUWebVPNSession(WEBVPN_NAME, WEBVPN_SECRET)
     else:
         ses = requests.Session()
     # 1. 从扁平化任务字典中获取所需配置

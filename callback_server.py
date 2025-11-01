@@ -1,43 +1,9 @@
-# main.py
-
 import logging
-import json
-import os
-from typing import Dict, Any
 
-# 导入我们封装好的核心函数
 from dingtalk.stream_handler import start_dingtalk_client
 from dingtalk.message_handler import handle_user_command
 
-# --------------------------------------------------
-# 1. 启动配置
-# --------------------------------------------------
-# 🚨 请在这里替换您的真实配置
-
-CONFIG_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    'config', 
-    'secret_config.json'
-)
-
-CLIENT_ID = None
-CLIENT_SECRET = None
-
-try:
-    if not os.path.exists(CONFIG_PATH):
-        raise FileNotFoundError(f"配置文件未找到：{CONFIG_PATH}")
-        
-    with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
-        config_data = json.load(f)
-        
-    # 从扁平结构中直接提取
-    CLIENT_ID = config_data.get('CLIENT_ID')
-    CLIENT_SECRET = config_data.get('CLIENT_SECRET')
-
-except Exception as e:
-    # 打印错误，但不中断程序，由后续的 None 检查处理
-    print(f"🚨 严重错误：加载配置文件失败。请检查 config/secret_config.json 文件。\n详细信息: {e}")
-    
+from config.secret_config import CLIENT_ID, CLIENT_SECRET
 
 
 def setup_logger():
@@ -53,11 +19,7 @@ def setup_logger():
     logger.setLevel(logging.INFO)
     return logger
 
-# --------------------------------------------------
-# 2. 应用程序入口
-# --------------------------------------------------
-
-def run_application():
+def start_callback_server():
     """初始化配置、日志，并启动钉钉客户端。"""
     
     if "YOUR_CLIENT_ID" in CLIENT_ID:
@@ -81,6 +43,3 @@ def run_application():
         logger.info("程序被用户中断。")
     except Exception as e:
         logger.critical(f"应用启动失败: {e}", exc_info=True)
-
-if __name__ == '__main__':
-    run_application()
