@@ -1,3 +1,3 @@
-SITES_FILE = "config/test.json"
+SITES_FILE = "config/sites.json"
 
 ENABLE_WEBVPN = False
